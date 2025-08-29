@@ -5,10 +5,7 @@ import re
 import sys
 import getpass
 from typing import List, Dict, Optional
-try:  # pragma: no cover - platform specific
-    import msvcrt  # type: ignore
-except ImportError:  # pragma: no cover - executed on non-Windows
-    msvcrt = None
+import msvcrt
 
 
 class SubTask:
@@ -49,25 +46,14 @@ class SubTask:
         """Creates a sub-task from a dictionary format."""
         return SubTask(
             details=str(data["details"]),
-            due_date=str(data["due_date"]) if data["due_date"] is not None else None,
+            due_date=str(data["due_date"]),
             priority=str(data["priority"]),
-            class_code=str(data["class_code"]) if data["class_code"] is not None else "",
+            class_code=str(data["class_code"]),
             completed=bool(data["completed"])
         )
 
 
 class MainTask:
-    """
-    Represents a main task that can contain multiple sub-tasks.
-
-    Attributes:
-        name (str): The name of the main task.
-        due_date (Optional[datetime.datetime]): The due date of the main task.
-        priority (str): The priority of the main task.
-        status (str): The status of the main task.
-        class_code (Optional[str]): The class code associated with the main task.
-        sub_tasks (List[SubTask]): A list of sub-tasks associated with the main task.
-    """
 
     def __init__(self, name: str, due_date: Optional[str], priority: str, status: str = "Not Started", class_code: Optional[str] = None):
         self.name = name
@@ -119,7 +105,7 @@ class MainTask:
 
     def view_sub_tasks(self) -> List[SubTask]:
         """Returns the list of sub-tasks."""
-        return self.sub_tasks
+        return self.sub_tasks; List[SubTask] = []
 
     def search_sub_tasks(self, keyword: Optional[str] = None) -> List[SubTask]:
         """Searches for sub-tasks containing the specified keyword."""
@@ -144,29 +130,16 @@ class MainTask:
         """Creates a main task from a dictionary format."""
         main_task = MainTask(
             name=str(data["name"]),
-            due_date=str(data["due_date"]) if data["due_date"] is not None else None,
+            due_date=str(data["due_date"]),
             priority=str(data["priority"]),
             status=str(data["status"]),
-            class_code=str(data["class_code"]) if data.get("class_code") is not None else None
+            class_code=str(data.get("class_code"))
         )
-        sub_tasks_data = data.get("sub_tasks", [])
-        if not isinstance(sub_tasks_data, list):
-            sub_tasks_data = []
-        # Explicitly annotate type for sub_tasks_data
-        sub_tasks_data: List[Dict[str, object]] = sub_tasks_data
-        main_task.sub_tasks = [SubTask.from_dict(sub_task_data) for sub_task_data in sub_tasks_data]
+        main_task.sub_tasks = [SubTask.from_dict(sub_task_data) for sub_task_data in data["sub_tasks"]]
         return main_task
 
 
 class Student:
-    """
-    Represents a student with a unique ID, password, and a list of task lists.
-
-    Attributes:
-        student_id (str): The unique ID of the student.
-        password (str): The hashed password of the student.
-        task_lists (List[MainTask]): A list of main tasks associated with the student.
-    """
 
     def __init__(self, student_id: str, password: str, task_lists: Optional[List[MainTask]] = None, is_hashed: bool = False):
         self.student_id = student_id
@@ -233,21 +206,11 @@ class Student:
     @staticmethod
     def from_dict(student_id: str, data: Dict[str, object]) -> 'Student':
         """Creates a student from a dictionary format."""
-        task_lists_data = data.get("task_lists", [])
-        if not isinstance(task_lists_data, list):
-            task_lists_data = []
-        task_lists = [MainTask.from_dict(task_list_data) for task_list_data in task_lists_data]
-        return Student(student_id, str(data["password"]), task_lists, is_hashed=True)
+        task_lists = [MainTask.from_dict(task_list_data) for task_list_data in data.get("task_lists", [])]
+        return Student(student_id, str, data["password"], task_lists, is_hashed=True)
 
 
 class StudentDatabase:
-    """
-    Manages the storage and retrieval of student data.
-
-    Attributes:
-        filename (str): The name of the JSON file used for storage.
-        students (Dict[str, Student]): A dictionary of students indexed by student ID.
-    """
 
     def __init__(self, filename: str = "students.json"):
         self.filename = filename
@@ -432,7 +395,7 @@ def search_tasks(student: Student):
     display_task_lists(student)
     search_all = input("Do you want to search across all lists? (yes/no): ").strip().lower()
     keyword = input("Enter keyword to search (leave empty to skip): ").strip()
-    results: List[SubTask] = []
+    results = []
     if search_all == 'yes':
         for task_list in student.view_task_lists():
             results.extend(task_list.search_sub_tasks(keyword=keyword))
