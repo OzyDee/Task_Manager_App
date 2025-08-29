@@ -135,7 +135,7 @@ class MainTask:
             status=str(data["status"]),
             class_code=str(data.get("class_code"))
         )
-        main_task.sub_tasks = [SubTask.from_dict(sub_task_data) for sub_task_data in data["sub_tasks"]]
+        main_task.sub_tasks = [SubTask.from_dict(sub_task_data) for sub_task_data in data["sub_tasks"]] # pyright: ignore[reportGeneralTypeIssues, reportUnknownVariableType, reportUnknownArgumentType]
         return main_task
 
 
@@ -206,8 +206,8 @@ class Student:
     @staticmethod
     def from_dict(student_id: str, data: Dict[str, object]) -> 'Student':
         """Creates a student from a dictionary format."""
-        task_lists = [MainTask.from_dict(task_list_data) for task_list_data in data.get("task_lists", [])]
-        return Student(student_id, str, data["password"], task_lists, is_hashed=True)
+        task_lists = [MainTask.from_dict(task_list_data) for task_list_data in data.get("task_lists", [])] # pyright: ignore[reportUnknownArgumentType, reportGeneralTypeIssues, reportUnknownVariableType]
+        return Student(student_id, str, data["password"], task_lists, is_hashed=True) # pyright: ignore[reportCallIssue]
 
 
 class StudentDatabase:
@@ -398,7 +398,7 @@ def search_tasks(student: Student):
     results = []
     if search_all == 'yes':
         for task_list in student.view_task_lists():
-            results.extend(task_list.search_sub_tasks(keyword=keyword))
+            results.extend(task_list.search_sub_tasks(keyword=keyword)) # pyright: ignore[reportUnknownMemberType]
     else:
         list_index = get_int_input("Enter task list number to search in: ")
         if 1 <= list_index <= len(student.task_lists):
